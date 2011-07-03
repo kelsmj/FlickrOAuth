@@ -1,2 +1,4 @@
 apikeys
 .DS_Store
+token
+.cache/
