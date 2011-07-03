@@ -2,8 +2,6 @@ import oauth2 as oauth
 import time
 import httplib2
 import urlparse
-import base64
-import hmac
 
 class APIKeys:
 	"""Helper class to read the API Keys"""
