@@ -1,1 +1,7 @@
 Contains example code on how to authenticate using OAuth for the flickr API.  Uses the https://github.com/simplegeo/python-oauth2 library, and the code was partially based off of the example code for that library.
+
+You must create a file called "apikeys" that has your applications api_key on the first line and the secret on the second line, in order for this code to work.
+
+This is my first attempt at both OAuth and Python, I understand there is some code refactoring that is needed.
+
+Blog about this is available at: http://www.mkelsey.com/2011/07/03/Flickr-oAuth-Python-Example.html
