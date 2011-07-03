@@ -1,0 +1,1 @@
+Contains example code on how to authenticate using OAuth for the flickr API.  Uses the https://github.com/simplegeo/python-oauth2 library, and the code was partially based off of the example code for that library.
