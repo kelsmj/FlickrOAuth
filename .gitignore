@@ -1,4 +1,7 @@
+photoIds.txt
+setIds.txt
 apikeys
 .DS_Store
 token
 .cache/
+*.xcworkspace
