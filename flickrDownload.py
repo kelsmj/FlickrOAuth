@@ -43,43 +43,6 @@ class TokenKeys(object):
 				self.secret = fp.readline()
 				fp.close()
 
-class FlickrPhotoSet(object):
-	"""Base class that represents a photoSet"""
-	
-	def __init__(self,set_id):
-		self.photo_set_id = set_id
-		self.photos = []
-		
-class FlickrPhoto(object):
-	"""Base class that represents a flickr photo"""
-	
-	def __init__(self,photo_id):
-		self.photo_id = photo_id
-		self.photoInfo = FlickrPhotosGetInfo(photo_id =self.photo_id)
-		self.tags = self.getTags()
-		self.photoSets = []
-		self.title = self.photoInfo.json["photo"]["title"]["_content"]
-		self.description = ""
-		self.fileNames = self.getFileNames();
-		self.fileDir = './pictures/'
-    
-	def getFileNames(self):
-		photoSizes = FlickrPhotosGetSizes(photo_id = self.photo_id)
-		files = {}
-		if(photoSizes.loaded):
-			for o in photoSizes.json["sizes"]["size"]:
-				files[o["label"].replace(' ', '_')] =self.title.replace(' ', '_') + '_' + self.photo_id + o["source"][-4:]
-		return files
-	
-	def getTags(self):
-		t = []
-		for o in self.photoInfo.json["photo"]["tags"]["tag"]:
-			t.append(o["_content"])
-			
-		return t
-	
-		
-	
 class FlickrApiMethod(object):
 	"""Base class for Flickr API calls"""
 	
@@ -136,7 +99,19 @@ class FlickrApiMethod(object):
 	def getParameters(self):
 		raise NotImplementedError
 
-
+class FlickrPhotoSetGetInfo(FlickrApiMethod):
+	name='flickr.photosets.getInfo'
+	def __init__(self,nojsoncallback=True,format='json',parameters=None,photoset_id=None):
+		self.photoset_id = photoset_id
+		FlickrApiMethod.__init__(self,nojsoncallback,format,parameters)
+	
+	def getParameters(self):
+		p={
+			'method':'flickr.photosets.getInfo',
+			'photoset_id':self.photoset_id
+		}
+		return p
+	
 class FlickrPhotoSetsGetList(FlickrApiMethod):
 	name='flickr.photosets.getList'
 	def __init__(self,nojsoncallback=True,format='json',parameters=None,user_id=None):
@@ -165,12 +140,24 @@ class FlickrPhotoSetsGetPhotos(FlickrApiMethod):
 		
 	def getParameters(self):
 		p={
-			'method':'flickr.photosets.getList',
+			'method':'flickr.photosets.getPhotos',
 			'media':'photos',
 			'per_page':500,
             'page':self.page,
             'photoset_id':self.photoset_id
 		}
+		return p
+	def getPhotoIds(self):
+		l =[]
+		if(self.loaded):
+			for o in self.json["photoset"]["photo"]:
+				l.append(o["id"])
+			while(self.page < self.json["photoset"]["pages"]):
+				self.page = self.page + 1
+				if(self.makeCall()):
+					for o in self.json["photoset"]["photo"]:
+						l.append(o["id"])
+		return l
 		
 class FlickrPeopleGetPhotos(FlickrApiMethod):
     name = 'flickr.people.getPhotos'
@@ -251,58 +238,90 @@ class FlickrPhotosGetInfo(FlickrApiMethod):
 		return p
 
 
-set = FlickrPhotoSetsGetList()
+class FlickrPhotoSet(object):
+	"""Base class that represents a photoSet"""
+	
+	def __init__(self,photoset_id):
+		self.photoset_id = photoset_id
+		self.photoSet = FlickrPhotoSetGetInfo(photoset_id = self.photoset_id)
+		self.title = self.photoSet.json["photoset"]["title"]["_content"].replace(' ','_')
+		self.photos = {}
+		self.photoIds = FlickrPhotoSetsGetPhotos(photoset_id=self.photoset_id).getPhotoIds()
+		self.count = len(self.photoIds)
+		self.fileDir = './pictures/' + self.title + '/'
+		
+		print 'Fetching ' + str(len(self.photoIds)) + ' in the set ' + self.title
+		for o in self.photoIds:
+			photo = FlickrPhoto(photo_id = o)
+			#print 'Fetched ' + photo.photo_id + ':' + photo.title
+			self.photos[o] = photo
+			
+	def writePhotos(self):
+		for o in self.photos:
+			for s in self.photos[o].sources:
+				opener = urllib2.build_opener()
+				page = opener.open(self.photos[o].sources[s])
+				my_picture = page.read()
+				dir = self.fileDir + s
+				if not os.path.exists(dir):
+					os.makedirs(dir)
+				filename = self.photos[o].photo_id + self.photos[o].sources[s][-4:]
+				print 'Writing ' + os.path.join(dir,filename)
+				fout = open(os.path.join(dir,filename),"wb")
+				fout.write(my_picture)
+				fout.close()
+			
+class FlickrPhoto(object):
+	"""Base class that represents a flickr photo"""
+	
+	def __init__(self,photo_id):
+		self.photo_id = photo_id
+		self.photoInfo = FlickrPhotosGetInfo(photo_id =self.photo_id)
+		self.tags = self.getTags()
+		self.photoSizes = FlickrPhotosGetSizes(photo_id = self.photo_id)
+		self.photoSets = []
+		self.title = self.photoInfo.json["photo"]["title"]["_content"]
+		self.description = ""
+		self.fileNames = self.getFileNames(photoSizes=self.photoSizes);
+		self.sources = self.getSources(photoSizes=self.photoSizes);
+		
+    
+	def getFileNames(self,photoSizes):
+		files = {}
+		if(photoSizes.loaded):
+			for o in photoSizes.json["sizes"]["size"]:
+				files[o["label"].replace(' ', '_')] =self.title.replace(' ', '_') + '_' + self.photo_id + o["source"][-4:]
+		return files
+	
+	def getSources(self,photoSizes):
+		sources = {}
+		if(photoSizes.loaded):
+			for o in photoSizes.json["sizes"]["size"]:
+				sources[o["label"].replace(' ', '_')] = o["source"]
+		return sources
+		
+	def getTags(self):
+		t = []
+		for o in self.photoInfo.json["photo"]["tags"]["tag"]:
+			t.append(o["_content"])
+		return t
+	
+		
+setList = FlickrPhotoSetsGetList().getSetIDs()
+photoSet = {}
+t = time.time()
 
-'''
-print "Please enter a photo id:",
-photoId = raw_input()
-print "Fetching Photo"
+for o in setList:
+	start = time.time()
+	photoSet[o] = FlickrPhotoSet(photoset_id=o)
+	elapsed = (time.time() - start)
+	print 'It took ' + str(elapsed) + ' seconds to get the set'
 
+writefiles = raw_input('Do you want to download all the files? (y/n) ')
 
-photoSizes = FlickrPhotosGetSizes(photo_id = photoId)
-if(photoSizes.makeCall()):
-	print "API Call Success! Writing Photos to Disk"
-	photoSizes.writePhotos()
-else:
-	print "API Call Failed"
-'''
+if(writefiles == 'y'):
+	for o in photoSet:
+		photoSet[o].writePhotos()
 
-'''
-photos = FlickrPeopleGetPhotos(user_id = 'me')
-
-with open('photoIds.txt', 'w') as f:
-	for o in photos.getPhotoIds():
-		f.write(o + '\n')
-f.closed
-
-
-
-sets = FlickrPhotoSetsGetList()
-
-with open('setIds.txt', 'w') as f:
-	for o in sets.getSetIDs():
-		f.write(o + '\n')
-f.closed
-'''
-photoSets = []
-fpSets = open('setIds.txt')
-photoSets = fpSets.readlines()
-fpSets.close()
-
-photos =[]
-fp = open('photoIds.txt')
-photos = fp.readlines()
-fp.close()
-
-
-photo = FlickrPhoto(photo_id =photos[1].rstrip('\n'))
-print photo.fileNames
-print photo.title
-print photo.tags
-'''
-f = FlickrPhotosGetSizes(photo_id =l[1].rstrip('\n'))
-if(f.makeCall()):
-	f.writePhotos()
-else:
-	print 'API Failed'
-'''
+total = (time.time() - t)
+print 'It took ' + str(total) + ' seconds to get all the files'
