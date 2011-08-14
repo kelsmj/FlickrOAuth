@@ -19,7 +19,7 @@ class APIKeys:
 		else:
 		    with fp:
 				self.apikey = fp.readline().rstrip('\n')
-				self.apisecret = fp.readline()
+				self.apisecret = fp.readline().rstrip('\n')
 				fp.close()
 # Read the APIKeys
 keys = APIKeys("apikeys")
@@ -39,7 +39,8 @@ params = {
 	'oauth_nonce': oauth.generate_nonce(),
 	'oauth_consumer_key': keys.apikey
 }
-
+print keys.apikey
+print keys.apisecret
 # Setup the Consumer with the api_keys given by the provider
 consumer = oauth.Consumer(key=keys.apikey, secret=keys.apisecret)
 
@@ -54,6 +55,8 @@ req['oauth_signature'] = signature
 
 # Make the request to get the oauth_token and the oauth_token_secret
 # I had to directly use the httplib2 here, instead of the oauth library.
+print req.to_url()
+
 h = httplib2.Http(".cache")
 resp, content = h.request(req.to_url(), "GET")
 

@@ -7,7 +7,8 @@ import urllib2
 import os
 import base64
 import unicodedata
-
+import pickle
+import pprint
 
 class APIKeys(object):
 	"""Base class to read the APIKeys from file"""
@@ -212,7 +213,7 @@ class FlickrPhotosGetSizes(FlickrApiMethod):
 			opener = urllib2.build_opener()
 			page = opener.open(o["source"])
 			my_picture = page.read()
-			dir = './pictures/' + o["label"].replace(' ', '_')
+			dir = './pictures/' + o["label"]
 			if not os.path.exists(dir):
 				os.makedirs(dir)
 			filename = self.photo_id + o["source"][-4:]
@@ -244,7 +245,7 @@ class FlickrPhotoSet(object):
 	def __init__(self,photoset_id):
 		self.photoset_id = photoset_id
 		self.photoSet = FlickrPhotoSetGetInfo(photoset_id = self.photoset_id)
-		self.title = self.photoSet.json["photoset"]["title"]["_content"].replace(' ','_')
+		self.title = self.photoSet.json["photoset"]["title"]["_content"]
 		self.photos = {}
 		self.photoIds = FlickrPhotoSetsGetPhotos(photoset_id=self.photoset_id).getPhotoIds()
 		self.count = len(self.photoIds)
@@ -290,7 +291,7 @@ class FlickrPhoto(object):
 		files = {}
 		if(photoSizes.loaded):
 			for o in photoSizes.json["sizes"]["size"]:
-				files[o["label"].replace(' ', '_')] =self.title.replace(' ', '_') + '_' + self.photo_id + o["source"][-4:]
+				files[o["label"]] =self.title.replace(' ', '_') + '_' + self.photo_id + o["source"][-4:]
 		return files
 	
 	def getSources(self,photoSizes):
@@ -306,8 +307,13 @@ class FlickrPhoto(object):
 			t.append(o["_content"])
 		return t
 	
-		
+
+	
+'''
+	
 setList = FlickrPhotoSetsGetList().getSetIDs()
+
+
 photoSet = {}
 t = time.time()
 
@@ -317,11 +323,11 @@ for o in setList:
 	elapsed = (time.time() - start)
 	print 'It took ' + str(elapsed) + ' seconds to get the set'
 
-writefiles = raw_input('Do you want to download all the files? (y/n) ')
 
-if(writefiles == 'y'):
-	for o in photoSet:
-		photoSet[o].writePhotos()
-
+output = open('flickr.pkl', 'wb')
+pickle.dump(photoSet, output, -1)
+output.close()
+    
 total = (time.time() - t)
 print 'It took ' + str(total) + ' seconds to get all the files'
+'''
