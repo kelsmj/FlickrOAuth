@@ -307,27 +307,3 @@ class FlickrPhoto(object):
 			t.append(o["_content"])
 		return t
 	
-
-	
-'''
-	
-setList = FlickrPhotoSetsGetList().getSetIDs()
-
-
-photoSet = {}
-t = time.time()
-
-for o in setList:
-	start = time.time()
-	photoSet[o] = FlickrPhotoSet(photoset_id=o)
-	elapsed = (time.time() - start)
-	print 'It took ' + str(elapsed) + ' seconds to get the set'
-
-
-output = open('flickr.pkl', 'wb')
-pickle.dump(photoSet, output, -1)
-output.close()
-    
-total = (time.time() - t)
-print 'It took ' + str(total) + ' seconds to get all the files'
-'''
