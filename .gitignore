@@ -5,3 +5,4 @@ apikeys
 token
 .cache/
 *.xcworkspace
+*.pyc

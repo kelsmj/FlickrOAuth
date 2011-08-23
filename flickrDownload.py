@@ -17,9 +17,6 @@ class APIKeys(object):
 		try:
 		    fp = open(filename)
 		except IOError as e:
-		    if e.errno == errno.EACCESS:
-		        print "file does not exists"
-		    # Not a permission error.
 		    raise
 		else:
 		    with fp:
@@ -34,9 +31,6 @@ class TokenKeys(object):
 		try:
 			fp = open(filename)
 		except IOError as e:
-			if e.errno == errno.EACCESS:
-				print "file does not exists"
-			# Not a permission error.
 			raise
 		else:
 			with fp:

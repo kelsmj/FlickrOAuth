@@ -42,9 +42,10 @@ def WritePhotoFromMongoToDisk(objectid,dir):
     
 
 #Get the List of PhotoSet IDs
-setList = FlickrPhotoSetsGetList().getSetIDs()
+setList = {'72157626419704988'}#FlickrPhotoSetsGetList().getSetIDs()
 
 print photosets.count()
+
 #Loop through list of SetIDs and get PhotoSet Info
 for id in setList:
     ps = photosets.find_one({"photoset.id":id})
@@ -80,4 +81,4 @@ for photoset in photosets.find({}):
 elapsed = (time.time() - start)
 print 'It took ' + str(elapsed) + ' to download ' + str(len(photos)) + ' of each size and store in GridFS'
     
-
+print photosets.find_one({"photoset.id":id})
