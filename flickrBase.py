@@ -63,7 +63,7 @@ class FlickrApiMethod(object):
 			'nojsoncallback':self.nojsoncallback,
 			'signature_method': "HMAC-SHA1",
 			'oauth_token':self.token.key,
-			'oauth_consumer_key':self.consumer.key,
+			'oauth_consumer_key':self.consumer.key
 		}
 		
 		defaults.update(parameters)
@@ -83,6 +83,7 @@ class FlickrApiMethod(object):
 		h = httplib2.Http(".cache")
 		
 		resp, content = h.request(req.to_url(), "GET")
+		
 		self.content = content
 		self.json = json.loads(content)
 		

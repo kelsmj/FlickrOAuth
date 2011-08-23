@@ -1,5 +1,6 @@
 from flickrBase import *
 
+		
 class FlickrPhotoSetGetInfo(FlickrApiMethod):
 	name='flickr.photosets.getInfo'
 	def __init__(self,nojsoncallback=True,format='json',parameters=None,photoset_id=None):
@@ -8,7 +9,7 @@ class FlickrPhotoSetGetInfo(FlickrApiMethod):
 	
 	def getParameters(self):
 		p={
-			'method':'flickr.photosets.getInfo',
+			'method':self.name,
 			'photoset_id':self.photoset_id
 		}
 		return p
@@ -20,7 +21,7 @@ class FlickrPhotoSetsGetList(FlickrApiMethod):
 		
 	def getParameters(self):
 		p={
-			'method':'flickr.photosets.getList'
+			'method':self.name
 		}
 		
 		return p
@@ -41,7 +42,7 @@ class FlickrPhotoSetsGetPhotos(FlickrApiMethod):
 		
 	def getParameters(self):
 		p={
-			'method':'flickr.photosets.getPhotos',
+			'method':self.name,
 			'media':'photos',
 			'per_page':500,
             'page':self.page,
@@ -60,5 +61,4 @@ class FlickrPhotoSetsGetPhotos(FlickrApiMethod):
 					for o in self.json["photoset"]["photo"]:
 						l.append(o["id"])
 		return l
-		
 		
