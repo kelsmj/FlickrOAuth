@@ -83,7 +83,7 @@ class FlickrApiMethod(object):
 		h = httplib2.Http(".cache")
 		
 		resp, content = h.request(req.to_url(), "GET")
-		
+
 		self.content = content
 		self.json = json.loads(content)
 		

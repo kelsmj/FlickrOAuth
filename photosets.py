@@ -1,6 +1,6 @@
 from flickrBase import *
 
-		
+#Gets information about a photoset.
 class FlickrPhotoSetGetInfo(FlickrApiMethod):
 	name='flickr.photosets.getInfo'
 	def __init__(self,nojsoncallback=True,format='json',parameters=None,photoset_id=None):
@@ -13,7 +13,8 @@ class FlickrPhotoSetGetInfo(FlickrApiMethod):
 			'photoset_id':self.photoset_id
 		}
 		return p
-	
+
+#Returns the photosets belonging to the specified user.
 class FlickrPhotoSetsGetList(FlickrApiMethod):
 	name='flickr.photosets.getList'
 	def __init__(self,nojsoncallback=True,format='json',parameters=None,user_id=None):
@@ -32,6 +33,7 @@ class FlickrPhotoSetsGetList(FlickrApiMethod):
 			l.append(o["id"])
 		return l
 
+#Get the list of photos in a set.
 class FlickrPhotoSetsGetPhotos(FlickrApiMethod):
 	name='flickr.photosets.getPhotos'
 	def __init__(self,nojsoncallback=True,format='json',parameters=None,photoset_id=None,page=1):
