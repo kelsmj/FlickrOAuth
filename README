@@ -4,4 +4,4 @@ You must create a file called "apikeys" that has your applications api_key on th
 
 This is my first attempt at both OAuth and Python, I understand there is some code refactoring that is needed.
 
-Blog about this is available at: http://www.mkelsey.com/2011/07/03/Flickr-oAuth-Python-Example.html
+Blog about this is available at: http://mkelsey.com/2011/07/03/Flickr-oAuth-Python-Example
